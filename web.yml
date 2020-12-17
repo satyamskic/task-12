@@ -1,0 +1,67 @@
+- hosts: Web_server 
+  vars: 
+     web_port: 80
+  tasks:
+          - name: Installing httpd software 
+            package:
+                 name: httpd
+                 state: present
+           
+          - name: Installing PHP interpreter
+            package:
+                 name: php
+                 state: present
+       
+          - name: Copying content of Web server
+            copy:
+                 content: '<pre>
+                          <?php
+                          print`/usr/sbin/ifconfig enp0s3`;
+                          ?>
+                          </pre>'
+                 dest: /var/www/html/index.php
+            notify:
+              - Restart httpd
+             
+          - name: Starting httpd service
+            service: 
+                  name: httpd
+                  state: started
+  handlers:
+     - name: Restart httpd
+       service:
+          name: httpd
+          state: restarted
+
+
+- hosts: Proxy_server
+  vars:
+      - haproxy_port: 8080
+      - web_port: 80
+
+  tasks:
+         - name: Installing haproxy
+           package: 
+                name: haproxy
+                state: present
+             
+         - name: Configure the haproxy.cfg file
+           template:
+                 src: "haproxy.cfg"
+                 dest: "/etc/haproxy/haproxy.cfg" 
+           notify:
+               - Restart httpd
+         
+         - name: Starting Haproxy service
+           service:
+                name: haproxy
+                state: started
+  handlers:
+     - name: Restart httpd
+       service:
+          name: httpd
+          state: restarted
+
+
+
+
