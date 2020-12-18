@@ -50,16 +50,16 @@
                  src: "haproxy.cfg"
                  dest: "/etc/haproxy/haproxy.cfg" 
            notify:
-               - Restart httpd
+               - Restart haproxy
          
          - name: Starting Haproxy service
            service:
                 name: haproxy
                 state: started
   handlers:
-     - name: Restart httpd
+     - name: Restart haproxy
        service:
-          name: httpd
+          name: haproxy
           state: restarted
 
 
